@@ -8,6 +8,6 @@ Generally it must be an HTTP server, implementing HTTP/1.0 protocol with approac
 My additions to this was adding full support of HTTP/0.9 requests because it was required by HTTP/1.0 specification.
 Also my version implements Status 400, Status 405 and Status 505 response for respective cases.
 
-Current version is build via CMAKE, it support three variants of AIO: Libevent, Libev and Libuv, out of which working one is Libev.
+This version of server is using blocking IO with creating detached pthreads for each connection processing.
 
-Feel free to comment, or send pull requests with your offers.
+I just wonder how reliable is this approach on few thousands connections.

@@ -1,19 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
-
 project(Final C)
 
-set(TARGET final)
-set(AIOVER "USELIBEV")
-set(AIOLIBFLAGS "-lev")
-set(VERBOSE 1)
-set(VERBOSEFLAGS "-DVERBOSE=${VERBOSE} -DVERBOSE_UTILS=0 -DAIOVER=${AIOVER} -D${AIOVER}")
-
-set(REBUILDABLES "${TARGET} *.o")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb -O0 -std=c99 ${VERBOSEFLAGS} ${AIOLIBFLAGS}")
-
 add_library(server server.c)
-
+add_library(response response.c)
 add_library(utils utils.c)
-add_executable(${TARGET} main.c)
+add_executable(final main.c)
 
-target_link_libraries(${TARGET} utils server ${AIOLIBFLAGS})
+set(CMAKE_C_FLAGS "-std=c99 -pthread -D_DEFAULT_SOURCE -DVERBOSE=0")
+target_link_libraries(final server utils response)

@@ -1,6 +1,7 @@
 #ifndef __SERVER_H__
 #define __SERVER_H__
 
-void server(int desired_ip, short desired_port);
+int process_accepted_connection(int socket);
+void server(char *desired_ip, char *desired_port);
 
 #endif

@@ -1,0 +1,6 @@
+	[Recieved 23 bytes from 5 socket]
+	Child terminated: Unknown signal 32767
+	[Recieved 24 bytes from 5 socket]
+File '/home/whera/c_cpp/concurrency/exam/sketches/9_posix_multithreaded_server/pictures/undressed' does not exist
+	[Recieved 23 bytes from 5 socket]
+Server is signaled to finish working.
