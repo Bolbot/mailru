@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(Final C)
+project(final C)
 
 add_library(server server.c)
 add_library(response response.c)
