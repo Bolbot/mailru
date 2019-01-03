@@ -1,11 +1,13 @@
 #include <stdio.h>
+#include <errno.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
 
 #include "defines.h"
 #include "server.h"
@@ -41,11 +43,22 @@ int main(int argc, char **argv)
 				if(VERBOSE) fprintf(_myoutput, "\t[Directory %s]\n", directory);
 				break;
 			}
-		case 'f': set_output(optarg);	if(VERBOSE) fprintf(stdout, "\t[Hence this line output is redirected to %s]\n", optarg); break;
+		case 'f': if(VERBOSE) fprintf(stdout, "\t[Hence this line output is redirected to %s]\n", optarg); redirect_output(optarg); break;
 		default: fprintf(_myoutput, "There is no such argument by design. Shall ignore something. Be sure to use -h -p -d -f\n");
-		};
+	};
+
+	pid_t pid = fork();
+	if(pid == -1) { fprintf(_myoutput, "Fail of fork: %s\n", strerror(errno)); exit(EXIT_FAILURE); }
+	else if(pid) exit(EXIT_SUCCESS);
+
+	umask(0);
+
+	pid_t session_id = setsid();
+	if(session_id == (pid_t)-1) fprintf(_myoutput, "Fail of setsid(): %s\n", strerror(errno));
+
+	if(chdir("/") == -1) fprintf(_myoutput, "Fail of chdir(\"/\"): %s\n", strerror(errno));
 
 	server(desired_ip, desired_port);
-	
+
 	return 0;
 }

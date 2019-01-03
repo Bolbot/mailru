@@ -1,12 +1,9 @@
-#include <time.h>
+#include <uv.h>
 #include <regex.h>
 #include <stdio.h>
-#include <errno.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 
 #include "response.h"
 #include "defines.h"

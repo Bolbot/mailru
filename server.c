@@ -57,14 +57,14 @@ int process_accepted_connection(int socket)
 					socket, ((status > 0) ? "status line and a " : ""), file_size);
 			int sent_head = (status > 0) ? send_response(status, file_size, content_type, socket) : 0;
 			ssize_t sent_body = sendfile(socket, requested_fd, NULL, file_size);
-			if(close(requested_fd)) fprintf(_myoutput, "Fail of closing %d descriptor\n", requested_fd);
 			if(sent_head == -1 || sent_body == -1) fprintf(_myoutput, "Some error sending successful response to %d\n", socket);
 			if(VERBOSE) fprintf(_myoutput, "Sent %ld/%lu of entity body to %d\n", sent_body, file_size, socket);
+		
+			if(close(requested_fd)) fprintf(_myoutput, "Fail of closing %d descriptor\n", requested_fd);
 		}
 	}
 	else send_error_response(status, socket);
 
-	if(shutdown(socket, SHUT_RDWR) == -1) fprintf(_myoutput, "Failed to shut the socket %d down: %s\n", socket, strerror(errno));
 	if(close(socket)) { fprintf(_myoutput, "Error of closing socket %d\n", socket); }
 	return 0;
 }
