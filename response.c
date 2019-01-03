@@ -1,3 +1,4 @@
+#include <time.h>
 #include <regex.h>
 #include <stdio.h>
 #include <errno.h>
