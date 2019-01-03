@@ -13,7 +13,6 @@
 #include "utils.h"
 
 FILE *_myoutput;
-//extern char *directory;
 
 size_t get_file_size(const char *fpath)
 {
@@ -63,16 +62,31 @@ int prepare_file_to_send(const char *rel_path, size_t *file_size, char *mime_typ
 }
 
 
-FILE *set_output(const char *file_addr)
+FILE *redirect_output(const char *file_addr)
 {
-	if(!file_addr) { perror("Bad address of file to output. Will output to stderr\n"); _myoutput = stderr; return NULL; }
-	FILE *output = fopen(file_addr, "w");
-	if(!output) { fprintf(_myoutput, "Failed to open %s for logging. Will log to stderr.\n", file_addr); _myoutput = stderr; return NULL; }
+	FILE *output = NULL;
+	if(!file_addr || !(output = fopen(file_addr, "w")))
+	{
+		perror("Failed to use file specified for output. Will output to stderr\n");
+		_myoutput = stderr;
+		if(close(STDOUT_FILENO) == -1) perror("Didn't close stdout fd");
+		if(dup2(STDERR_FILENO, STDOUT_FILENO)) perror("dup2 stdout to stderr");
+	}
+	else
+	{
+		_myoutput = output;
+		if(setvbuf(_myoutput, NULL, _IONBF, 0) == -1) perror("failed to setvbuf to logfile");
+		if(fflush(NULL)) perror("failed to fflush all output streams\n");
 
-	_myoutput = output;
-	setlinebuf(_myoutput);
+		if(close(STDOUT_FILENO) == -1) fprintf(_myoutput, "Didn't close stdout fd: %s\n", strerror(errno));
+		if(dup2(fileno(_myoutput), STDOUT_FILENO) == -1) fprintf(_myoutput, "dup2 stdout to logfile: %s\n", strerror(errno));
 
-	return output;
+		if(close(STDERR_FILENO) == -1) fprintf(_myoutput, "Didn't close stderr fd: %s\n", strerror(errno));
+		if(dup2(fileno(_myoutput), STDERR_FILENO) == -1) fprintf(_myoutput, "dup2 stderr to logfile: %s\n", strerror(errno));
+	}
+
+	if(close(STDIN_FILENO) == -1) fprintf(_myoutput, "Didn't close stdin fd: %s\n", strerror(errno));
+	return _myoutput;
 }
 
 void finish()
@@ -89,9 +103,9 @@ void sig_handler(int code)
 	if(VERBOSE) fprintf(_myoutput, "\t[Got signal: %s]\n", strsignal(code));
 	if(code == SIGCHLD)
 	{
-		int status;
-		waitpid(-1, &status, 0);
-		fprintf(_myoutput, "\tChild terminated: %s\n", strsignal(status));
+	//	int status;									// we are multithreaded and don't need this
+	//	waitpid(-1, &status, 0);
+	//	fprintf(_myoutput, "\tChild terminated: %s\n", strsignal(status));
 	}
 
 	if(code == SIGINT || code == SIGTERM || code == SIGQUIT)
